@@ -16,7 +16,7 @@ const Home: React.FC = () => {
       try {
         const endpoint = id
           ? `/quotes.json?orderBy="category"&equalTo="${id}"`
-          : `/quotes.json`; // If there's no id, fetch all quotes
+          : `/quotes.json`;
         const response = await axiosApi.get(endpoint);
         const data = response.data;
 
