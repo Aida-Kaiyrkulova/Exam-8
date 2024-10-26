@@ -1,7 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Quote } from '../../types';
-import { Button, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Quote } from "../../types";
+import {
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface QuoteFormProps {
   initialQuote?: Quote | null;
@@ -10,10 +18,17 @@ interface QuoteFormProps {
   loading?: boolean;
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categories, loading }) => {
-  const [author, setAuthor] = useState(initialQuote ? initialQuote.author : '');
-  const [category, setCategory] = useState(initialQuote ? initialQuote.category : '');
-  const [text, setText] = useState(initialQuote ? initialQuote.text : '');
+const QuoteForm: React.FC<QuoteFormProps> = ({
+  initialQuote,
+  onSubmit,
+  categories,
+  loading,
+}) => {
+  const [author, setAuthor] = useState(initialQuote ? initialQuote.author : "");
+  const [category, setCategory] = useState(
+    initialQuote ? initialQuote.category : "",
+  );
+  const [text, setText] = useState(initialQuote ? initialQuote.text : "");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -26,7 +41,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categorie
     }
   }, [initialQuote]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
@@ -39,53 +56,73 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categorie
     };
 
     if (!quote.author || !quote.text || !quote.category) {
-      setError("Все поля обязательны для заполнения.");
+      setError("All fields are required.");
       return;
     }
 
     try {
       await onSubmit(quote);
-      setSuccessMessage("Цитата успешно отправлена!");
-      setTimeout(() => navigate('/'), 2000);
+      setSuccessMessage("Quote submitted successfully!");
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      console.error("Ошибка при отправке цитаты:", error);
-      setError("Не удалось отправить цитату. Пожалуйста, попробуйте еще раз.");
+      console.error("Error submitting quote:", error);
+      setError("Failed to submit the quote. Please try again.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       <FormControl fullWidth margin="normal" disabled={loading}>
-        <InputLabel>Категория</InputLabel>
-        <Select value={category} onChange={e => setCategory(e.target.value)} required variant="outlined">
-          <MenuItem value="" disabled>Выберите категорию</MenuItem>
-          {categories.map(cat => (
-            <MenuItem key={cat.id} value={cat.id}>{cat.title}</MenuItem>
+        <InputLabel>Category</InputLabel>
+        <Select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
+          variant="outlined"
+        >
+          <MenuItem value="" disabled>
+            Choose category
+          </MenuItem>
+          {categories.map((cat) => (
+            <MenuItem key={cat.id} value={cat.id}>
+              {cat.title}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
       <TextField
-        label="Автор"
+        label="Author"
         value={author}
-        onChange={e => setAuthor(e.target.value)}
+        onChange={(e) => setAuthor(e.target.value)}
         fullWidth
         margin="normal"
         required
         disabled={loading}
       />
       <TextField
-        label="Цитата"
+        label="Quote"
         value={text}
-        onChange={e => setText(e.target.value)}
+        onChange={(e) => setText(e.target.value)}
         fullWidth
         margin="normal"
         required
         disabled={loading}
       />
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : (initialQuote ? 'Обновить цитату' : 'Отправить цитату')}
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={loading}
+      >
+        {loading ? (
+          <CircularProgress size={24} />
+        ) : initialQuote ? (
+          "Update Quote"
+        ) : (
+          "Submit Quote"
+        )}
       </Button>
     </form>
   );

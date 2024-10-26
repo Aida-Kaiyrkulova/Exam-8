@@ -14,15 +14,15 @@ const QuotesByCategory: React.FC = () => {
   const fetchQuotesByCategory = async (category: string) => {
     try {
       const response = await axiosApi.get(
-        `/quotes.json?orderBy="category"&equalTo="${category}"`
+        `/quotes.json?orderBy="category"&equalTo="${category}"`,
       );
       const quotesData = response.data;
 
       return quotesData
         ? Object.keys(quotesData).map((key) => ({
-          id: key,
-          ...quotesData[key],
-        }))
+            id: key,
+            ...quotesData[key],
+          }))
         : [];
     } catch (error) {
       setError("Error");

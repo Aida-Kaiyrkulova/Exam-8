@@ -3,29 +3,31 @@ import axiosApi from "../../axiosApi";
 import QuoteList from "../../components/QuoteList/QuoteList";
 import { Quote } from "../../types";
 import { Typography, CircularProgress, Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const QuotesContainer: React.FC = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuotes = async () => {
       setLoading(true);
       try {
-        const response = await axiosApi.get('/quotes.json');
+        const response = await axiosApi.get("/quotes.json");
         const quotesData = response.data;
 
         const quotesArray = quotesData
           ? Object.keys(quotesData).map((key) => ({
-            id: key,
-            ...quotesData[key],
-          }))
+              id: key,
+              ...quotesData[key],
+            }))
           : [];
 
         setQuotes(quotesArray);
       } catch (error) {
-        setError("Ошибка при загрузке цитат. Попробуйте еще раз.");
+        setError("Error loading quotes. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -33,6 +35,25 @@ const QuotesContainer: React.FC = () => {
 
     fetchQuotes();
   }, []);
+
+  const handleEdit = (quote: Quote) => {
+    navigate(`/submit-quote?id=${quote.id}`, { state: { quote } });
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this quote?",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await axiosApi.delete(`/quotes/${id}.json`);
+      setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== id));
+    } catch (error) {
+      setError("Error deleting the quote.");
+      console.error("Delete error:", error);
+    }
+  };
 
   if (loading) {
     return <CircularProgress />;
@@ -44,8 +65,8 @@ const QuotesContainer: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4">Все Цитаты</Typography>
-      <QuoteList quotes={quotes} onEdit={() => {}} onDelete={() => {}} />
+      <Typography variant="h4">All Quotes</Typography>
+      <QuoteList quotes={quotes} onEdit={handleEdit} onDelete={handleDelete} />
     </div>
   );
 };

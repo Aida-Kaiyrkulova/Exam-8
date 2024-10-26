@@ -6,7 +6,7 @@ import Home from "./containers/Home/Home";
 import SubmitQuote from "./components/SubmitQuote/SubmitQuote";
 import Sidebar from "./components/SideBar/SideBar";
 import QuotesByCategory from "./components/QuotesByCategory/QuotesByCategory";
-import QuotesContainer from './containers/QuotesContainer/QuotesContainer.tsx';
+import QuotesContainer from "./containers/QuotesContainer/QuotesContainer.tsx";
 
 const App: React.FC = () => {
   return (
@@ -24,7 +24,9 @@ const App: React.FC = () => {
             <Route path="submit-quote" element={<SubmitQuote />} />
             <Route path="quotes" element={<QuotesContainer />} />
             <Route path="category/:id" element={<QuotesByCategory />} />
-            <Route path="*" element={<Typography variant="h2">Not found</Typography>}
+            <Route
+              path="*"
+              element={<Typography variant="h2">Not found</Typography>}
             />
           </Routes>
         </Box>

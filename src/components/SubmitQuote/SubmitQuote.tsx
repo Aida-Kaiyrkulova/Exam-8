@@ -18,11 +18,19 @@ const SubmitQuote: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const validateQuote = (quote: { author: string; text: string; category: string }) => {
+  const validateQuote = (quote: {
+    author: string;
+    text: string;
+    category: string;
+  }) => {
     return quote.author && quote.text && quote.category;
   };
 
-  const handleSubmit = async (quote: { author: string; text: string; category: string }) => {
+  const handleSubmit = async (quote: {
+    author: string;
+    text: string;
+    category: string;
+  }) => {
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
@@ -38,7 +46,7 @@ const SubmitQuote: React.FC = () => {
       setSuccessMessage("Quote submit successfully");
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-        setError("Cant add quote");
+      setError("Cant add quote");
     } finally {
       setLoading(false);
     }
@@ -46,7 +54,7 @@ const SubmitQuote: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4">Добавить новую цитату</Typography>
+      <Typography variant="h4">Add new quote</Typography>
       {error && <Alert severity="error">{error}</Alert>}
       {successMessage && <Alert severity="success">{successMessage}</Alert>}
       <QuoteForm

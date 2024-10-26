@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Quote } from "../../types";
 import axiosApi from "../../axiosApi";
+import { CircularProgress } from "@mui/material";
 
 const Home: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,20 +16,20 @@ const Home: React.FC = () => {
       try {
         const endpoint = id
           ? `/quotes.json?orderBy="category"&equalTo="${id}"`
-          : `/quotes.json`; // Если id нет, получить все цитаты
+          : `/quotes.json`; // If there's no id, fetch all quotes
         const response = await axiosApi.get(endpoint);
         const data = response.data;
 
         const fetchedQuotes: Quote[] = data
           ? Object.keys(data).map((key) => ({
-            id: key,
-            ...data[key],
-          }))
+              id: key,
+              ...data[key],
+            }))
           : [];
 
         setQuotes(fetchedQuotes);
       } catch (error) {
-        setError("Error");
+        setError("Error loading quotes.");
       } finally {
         setLoading(false);
       }
@@ -38,20 +39,21 @@ const Home: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return <p>Загрузка...</p>;
+    return <CircularProgress />;
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <p style={{ color: "red" }}>{error}</p>;
   }
 
   return (
     <div>
-      <h2>{id ? id.replace("-", " ") : "All quotes"}</h2>
+      <h2>{id ? id.replace("-", " ") : "All Quotes"}</h2>
       <ul>
         {quotes.map((quote) => (
           <li key={quote.id}>
             <strong>{quote.author}</strong>: {quote.text}
+            <hr />
           </li>
         ))}
       </ul>
