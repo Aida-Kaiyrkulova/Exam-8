@@ -1,18 +1,19 @@
-import { Form } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Quote } from '../../types';
-import { Button, TextField } from '@mui/material';
-
+import { Button, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
 
 interface QuoteFormProps {
   initialQuote?: Quote;
-  onSubmit: (quote: Quote) => void;
+  onSubmit: (quote: Quote) => Promise<void>;
+  categories: { id: string; title: string }[];
+  loading?: boolean;
 }
 
-const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit }) => {
+const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categories, loading }) => {
   const [author, setAuthor] = useState(initialQuote ? initialQuote.author : '');
   const [category, setCategory] = useState(initialQuote ? initialQuote.category : '');
   const [text, setText] = useState(initialQuote ? initialQuote.text : '');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialQuote) {
@@ -22,34 +23,53 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit }) => {
     }
   }, [initialQuote]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!author || !category || !text) {
+      setError('All fields are required.');
+      return;
+    }
+
     const newQuote: Quote = {
-      id: initialQuote ? initialQuote.id : '',
+      id: initialQuote ? initialQuote.id : Date.now().toString(),
       author,
       category,
       text,
     };
-    onSubmit(newQuote);
-    setAuthor('');
-    setCategory('');
-    setText('');
+
+    try {
+      await onSubmit(newQuote);
+      if (!initialQuote) {
+        setAuthor('');
+        setCategory('');
+        setText('');
+      }
+    } catch (submitError) {
+      setError('Failed to submit the quote. Please try again.');
+    }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Category</InputLabel>
+        <Select value={category} onChange={e => setCategory(e.target.value)} required variant="outlined">
+          <MenuItem value="" disabled>Select Category</MenuItem>
+          {categories.map(cat => (
+            <MenuItem key={cat.id} value={cat.id}>{cat.title}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <TextField
         label="Author"
         value={author}
         onChange={e => setAuthor(e.target.value)}
         fullWidth
         margin="normal"
-      />
-      <TextField
-        label="Category"
-        value={category}
-        onChange={e => setCategory(e.target.value)}
-        fullWidth
-        margin="normal"
+        required
       />
       <TextField
         label="Quote"
@@ -57,11 +77,12 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit }) => {
         onChange={e => setText(e.target.value)}
         fullWidth
         margin="normal"
+        required
       />
-      <Button onClick={handleSubmit} variant="contained" color="primary">
-        {initialQuote ? 'Update Quote' : 'Submit Quote'}
+      <Button type="submit" variant="contained" color="primary" disabled={loading}>
+        {loading ? <CircularProgress size={24} /> : (initialQuote ? 'Update Quote' : 'Submit Quote')}
       </Button>
-    </Form>
+    </form>
   );
 };
 
