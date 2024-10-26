@@ -1,36 +1,44 @@
-import React, { useState } from 'react';
-import QuoteForm from '../../containers/QuoteForm/QuoteForm';
-import axiosApi from '../../axiosApi';
-import { useNavigate } from 'react-router-dom';
-import { Quote } from '../../types';
+import React, { useState } from "react";
+import QuoteForm from "../../containers/QuoteForm/QuoteForm";
+import axiosApi from "../../axiosApi";
+import { useNavigate } from "react-router-dom";
+import { Alert, Typography } from "@mui/material";
 
-interface Category {
-  title: string;
-  id: string;
-}
-
-const categories: Category[] = [
-  { title: 'Star Wars', id: 'star-wars' },
-  { title: 'Famous people', id: 'famous-people' },
-  { title: 'Saying', id: 'saying' },
-  { title: 'Humour', id: 'humour' },
-  { title: 'Motivational', id: 'motivational' },
+const categories = [
+  { title: "Star Wars", id: "star-wars" },
+  { title: "Famous people", id: "famous-people" },
+  { title: "Saying", id: "saying" },
+  { title: "Humour", id: "humour" },
+  { title: "Motivational", id: "motivational" },
 ];
 
 const SubmitQuote: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (quote: Quote) => {
+  const validateQuote = (quote: { author: string; text: string; category: string }) => {
+    return quote.author && quote.text && quote.category;
+  };
+
+  const handleSubmit = async (quote: { author: string; text: string; category: string }) => {
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
+
+    if (!validateQuote(quote)) {
+      setError("Fill all fields");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await axiosApi.post('/quotes.json', quote);
-      navigate('/');
+      await axiosApi.post("/quotes.json", quote);
+      setSuccessMessage("Quote submit successfully");
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      console.error("Error", error);
-      setError("Failed to submit the quote. Please try again.");
+        setError("Cant add quote");
     } finally {
       setLoading(false);
     }
@@ -38,9 +46,14 @@ const SubmitQuote: React.FC = () => {
 
   return (
     <div>
-      <h2>Submit a New Quote</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <QuoteForm onSubmit={handleSubmit} categories={categories} loading={loading} />
+      <Typography variant="h4">Добавить новую цитату</Typography>
+      {error && <Alert severity="error">{error}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+      <QuoteForm
+        onSubmit={handleSubmit}
+        categories={categories}
+        loading={loading}
+      />
     </div>
   );
 };

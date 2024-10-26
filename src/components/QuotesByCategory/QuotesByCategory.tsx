@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import axiosApi from '../../axiosApi';
-import { useParams } from 'react-router-dom';
-import { Typography, CircularProgress, Alert } from '@mui/material';
-import { Quote } from '../../types';
-import QuoteList from '../QuoteList/QuoteList';
+import React, { useEffect, useState } from "react";
+import axiosApi from "../../axiosApi";
+import { useParams } from "react-router-dom";
+import { Typography, CircularProgress, Alert } from "@mui/material";
+import { Quote } from "../../types";
+import QuoteList from "../QuoteList/QuoteList";
 
 const QuotesByCategory: React.FC = () => {
   const { id } = useParams<{ id: string | undefined }>();
@@ -13,17 +13,19 @@ const QuotesByCategory: React.FC = () => {
 
   const fetchQuotesByCategory = async (category: string) => {
     try {
-      const response = await axiosApi.get(`/quotes.json?orderBy="category"&equalTo="${category}"`);
+      const response = await axiosApi.get(
+        `/quotes.json?orderBy="category"&equalTo="${category}"`
+      );
       const quotesData = response.data;
 
-      const formattedQuotes: Quote[] = quotesData ? Object.keys(quotesData).map(key => ({
-        id: key,
-        ...quotesData[key],
-      })) : [];
-
-      return formattedQuotes;
+      return quotesData
+        ? Object.keys(quotesData).map((key) => ({
+          id: key,
+          ...quotesData[key],
+        }))
+        : [];
     } catch (error) {
-      setError('error');
+      setError("Error");
       return [];
     } finally {
       setLoading(false);
@@ -39,7 +41,7 @@ const QuotesByCategory: React.FC = () => {
 
       fetchData();
     } else {
-      setError('error');
+      setError("Error");
       setLoading(false);
     }
   }, [id]);
@@ -54,8 +56,12 @@ const QuotesByCategory: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4">Quotes by category: {id}</Typography>
-      <QuoteList quotes={quotes} />
+      <Typography variant="h4">Quotes by Category: {id}</Typography>
+      {quotes.length === 0 ? (
+        <Typography variant="body1">No quotes</Typography>
+      ) : (
+        <QuoteList quotes={quotes} onEdit={() => {}} onDelete={() => {}} />
+      )}
     </div>
   );
 };

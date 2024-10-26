@@ -1,6 +1,6 @@
-import { List, ListItemText, Divider, ListItemButton } from '@mui/material';
-import { NavLink } from 'react-router-dom';
-import React from 'react';
+import { List, ListItemText, Divider, ListItemButton } from "@mui/material";
+import { NavLink } from "react-router-dom";
+import React from "react";
 
 interface Category {
   title: string;
@@ -8,11 +8,11 @@ interface Category {
 }
 
 const categories: Category[] = [
-  { title: 'Star Wars', id: 'star-wars' },
-  { title: 'Famous people', id: 'famous-people' },
-  { title: 'Saying', id: 'saying' },
-  { title: 'Humour', id: 'humour' },
-  { title: 'Motivational', id: 'motivational' },
+  { title: "Star Wars", id: "star-wars" },
+  { title: "Famous people", id: "famous-people" },
+  { title: "Saying", id: "saying" },
+  { title: "Humour", id: "humour" },
+  { title: "Motivational", id: "motivational" },
 ];
 
 const Sidebar: React.FC = () => {
@@ -23,7 +23,7 @@ const Sidebar: React.FC = () => {
           <NavLink
             to={`/category/${category.id}`}
             key={category.id}
-            className={({ isActive }) => (isActive ? 'active-link' : '')}
+            className={({ isActive }) => (isActive ? "active-link" : "")}
           >
             <ListItemButton>
               <ListItemText primary={category.title} />

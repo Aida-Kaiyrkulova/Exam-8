@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Quote } from '../../types';
 import { Button, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface QuoteFormProps {
-  initialQuote?: Quote;
+  initialQuote?: Quote | null;
   onSubmit: (quote: Quote) => Promise<void>;
   categories: { id: string; title: string }[];
   loading?: boolean;
@@ -14,6 +15,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categorie
   const [category, setCategory] = useState(initialQuote ? initialQuote.category : '');
   const [text, setText] = useState(initialQuote ? initialQuote.text : '');
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialQuote) {
@@ -23,64 +26,66 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialQuote, onSubmit, categorie
     }
   }, [initialQuote]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
 
-    if (!author || !category || !text) {
-      setError('All fields are required.');
-      return;
-    }
-
-    const newQuote: Quote = {
+    const quote: Quote = {
       id: initialQuote ? initialQuote.id : Date.now().toString(),
       author,
       category,
       text,
     };
 
+    if (!quote.author || !quote.text || !quote.category) {
+      setError("Все поля обязательны для заполнения.");
+      return;
+    }
+
     try {
-      await onSubmit(newQuote);
-      if (!initialQuote) {
-        setAuthor('');
-        setCategory('');
-        setText('');
-      }
-    } catch (submitError) {
-      setError('Failed to submit the quote. Please try again.');
+      await onSubmit(quote);
+      setSuccessMessage("Цитата успешно отправлена!");
+      setTimeout(() => navigate('/'), 2000);
+    } catch (error) {
+      console.error("Ошибка при отправке цитаты:", error);
+      setError("Не удалось отправить цитату. Пожалуйста, попробуйте еще раз.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Category</InputLabel>
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+      <FormControl fullWidth margin="normal" disabled={loading}>
+        <InputLabel>Категория</InputLabel>
         <Select value={category} onChange={e => setCategory(e.target.value)} required variant="outlined">
-          <MenuItem value="" disabled>Select Category</MenuItem>
+          <MenuItem value="" disabled>Выберите категорию</MenuItem>
           {categories.map(cat => (
             <MenuItem key={cat.id} value={cat.id}>{cat.title}</MenuItem>
           ))}
         </Select>
       </FormControl>
       <TextField
-        label="Author"
+        label="Автор"
         value={author}
         onChange={e => setAuthor(e.target.value)}
         fullWidth
         margin="normal"
         required
+        disabled={loading}
       />
       <TextField
-        label="Quote"
+        label="Цитата"
         value={text}
         onChange={e => setText(e.target.value)}
         fullWidth
         margin="normal"
         required
+        disabled={loading}
       />
       <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : (initialQuote ? 'Update Quote' : 'Submit Quote')}
+        {loading ? <CircularProgress size={24} /> : (initialQuote ? 'Обновить цитату' : 'Отправить цитату')}
       </Button>
     </form>
   );
